@@ -4,22 +4,22 @@ A lightweight, automated deployment tool for PHP applications using Node.js and 
 
 ## Features
 
-- Automated project packaging into optimized ZIP archives  
-- FTP/FTPS upload support to remote servers  
-- Remote server ZIP extraction trigger via HTTP endpoint  
-- Branch restriction to prevent accidental deployments  
-- Smart file filtering using `.updateignore` rules  
-- Environment variable support for sensitive credentials  
-- Verbose logging for deployment tracking  
-- Retry mechanism for FTP reliability  
-- Activity logging for deployments (file + database support)  
+- Automated project packaging into optimized ZIP archives
+- FTP/FTPS upload support to remote servers
+- Remote server ZIP extraction trigger via HTTP endpoint
+- Branch restriction to prevent accidental deployments
+- Smart file filtering using `.updateignore` rules
+- Environment variable support for sensitive credentials
+- Verbose logging for deployment tracking
+- Retry mechanism for FTP reliability
+- Activity logging for deployments (file + database support)
 
 ## Prerequisites
 
-- Node.js >= 14.x  
-- PHP >= 7.4 (SelfPhp Framework compatible)  
-- FTP/FTPS server with write permissions  
-- Git repository with proper branch setup  
+- Node.js >= 14.x
+- PHP >= 7.4 (SelfPhp Framework compatible)
+- FTP/FTPS server with write permissions
+- Git repository with proper branch setup
 
 ## Installation
 
@@ -57,21 +57,21 @@ Create a `.xfixrc.json` file:
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| host | string | required | FTP server hostname |
-| username | string | required | FTP username |
-| password | string | required | FTP password |
-| remotePath | string | required | Deployment directory |
-| branch | string | main | Allowed deployment branch |
-| cleanupLocal | boolean | true | Delete ZIP after upload |
-| secure | boolean | false | Enable FTPS |
-| rejectUnauthorized | boolean | false | SSL validation |
-| maxRetries | number | 3 | FTP retry attempts |
-| retryDelay | number | 2000 | Retry delay (ms) |
-| verbose | boolean | false | Debug logs |
-| deployUrl | string | required | Must be `/v1/api/deploy` |
-| exclude | array | [] | Files/folders excluded |
+| Option             | Type    | Default  | Description                |
+| ------------------ | ------- | -------- | -------------------------- |
+| host               | string  | required | FTP server hostname        |
+| username           | string  | required | FTP username               |
+| password           | string  | required | FTP password               |
+| remotePath         | string  | required | Deployment directory       |
+| branch             | string  | main     | Allowed deployment branch  |
+| cleanupLocal       | boolean | true     | Delete ZIP after upload    |
+| secure             | boolean | false    | Enable FTPS                |
+| rejectUnauthorized | boolean | false    | SSL validation             |
+| maxRetries         | number  | 3        | FTP retry attempts         |
+| retryDelay         | number  | 2000     | Retry delay (ms)           |
+| verbose            | boolean | false    | Debug logs                 |
+| deployUrl          | string  | required | Must be `/v1/api/deploy` |
+| exclude            | array   | []       | Files/folders excluded     |
 
 ## Deploy URL Requirement
 
@@ -82,9 +82,10 @@ https://yourdomain.com/v1/api/deploy
 ```
 
 It must:
-- Accept POST requests  
-- Validate API key (optional but recommended)  
-- Extract uploaded ZIP file  
+
+- Accept POST requests
+- Validate API key (optional but recommended)
+- Extract uploaded ZIP file
 
 ## .updateignore
 
@@ -115,7 +116,7 @@ mv cp/DeploymentApiController.php /path/to/app/Http/Controllers/Api/
 
 Add route:
 
-```php 
+```php
 use SelfPhp\Route; 
 use App\Http\Controllers\Api\DeploymentApiController; 
 use App\Http\Middlewares\ApiMiddleware;
@@ -150,49 +151,53 @@ npm run deploy
 
 ## Deployment Flow
 
-1. Validate Git branch  
-2. Scan project files  
-3. Apply `.updateignore` rules  
-4. Create ZIP archive  
-5. Upload via FTP  
-6. Call `/v1/api/deploy` endpoint  
-7. Extract files on server  
-8. Cleanup and log results  
+1. Validate Git branch
+2. Scan project files
+3. Apply `.updateignore` rules
+4. Create ZIP archive
+5. Upload via FTP
+6. Call `/v1/api/deploy` endpoint
+7. Extract files on server
+8. Cleanup and log results
 
 ## Security
 
-- Use environment variables for secrets  
-- Do not commit `.xfixrc.json`  
-- Enable FTPS in production  
-- Use HTTPS deploy endpoint  
-- Restrict API access  
-- Validate API keys on server  
+- Use environment variables for secrets
+- Do not commit `.xfixrc.json`
+- Enable FTPS in production
+- Use HTTPS deploy endpoint
+- Restrict API access
+- Validate API keys on server
 
 ## Error Handling
 
-- Branch mismatch protection  
-- FTP retry mechanism  
-- Extraction rollback support  
-- Timeout handling  
-- File integrity checks (optional)  
+- Branch mismatch protection
+- FTP retry mechanism
+- Extraction rollback support
+- Timeout handling
+- File integrity checks (optional)
 
 ## Troubleshooting
 
 ### Package not found
-- Check FTP upload success  
-- Verify remote path permissions  
+
+- Check FTP upload success
+- Verify remote path permissions
 
 ### Invalid branch
+
 ```bash
 git checkout main
 ```
 
 ### FTP connection failed
-- Validate credentials  
-- Check firewall rules  
+
+- Validate credentials
+- Check firewall rules
 
 ### Permission denied
-- Ensure writable directory (755/775)  
+
+- Ensure writable directory (755/775)
 
 ## Project Structure
 
@@ -201,7 +206,7 @@ xfix-deploy/
 ├── .xfixrc.json
 ├── .updateignore
 ├── deploy.js
-├── DeploymentApiController.php
+├── cp/DeploymentApiController.php
 ├── package.json
 └── src/
 ```
@@ -209,25 +214,27 @@ xfix-deploy/
 ## Dependencies
 
 ### Node.js
-- fs-extra  
-- archiver  
-- basic-ftp  
-- ignore  
-- node-fetch  
-- execa  
+
+- fs-extra
+- archiver
+- basic-ftp
+- ignore
+- node-fetch
+- execa
 
 ### PHP
-- SelfPhp Framework  
-- ZipArchive  
-- JSON extension  
+
+- SelfPhp Framework
+- ZipArchive
+- JSON extension
 
 ## Contributing
 
-1. Fork repository  
-2. Create feature branch  
-3. Commit changes  
-4. Push branch  
-5. Open pull request  
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push branch
+5. Open pull request
 
 **Made with Love for simpler deployments**
 
@@ -236,4 +243,3 @@ For issues and feature requests, please [open an issue](https://github.com/Giceh
 ## License
 
 [MIT License](https://github.com/Gicehajunior/xfix-deploy/License)
-
