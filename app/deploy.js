@@ -305,7 +305,7 @@ export default async function deploy(options = {}) {
     }
     
     // Validate branch
-    await validateBranch('develop');
+    await validateBranch(config?.branch || 'main');
     
     // Scan and filter files
     console.log('\n📦 Scanning project files...');
