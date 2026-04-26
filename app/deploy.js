@@ -232,7 +232,7 @@ async function triggerRemoteExtraction(deployUrl, config) {
   
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const timeout = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
     
     const formData = new URLSearchParams();
     formData.append('client_id', config.client_id);
