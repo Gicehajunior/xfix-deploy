@@ -110,7 +110,7 @@ deploy.zip
 Copy controller:
 
 ```bash
-cp DeploymentApiController.php /path/to/app/Http/Controllers/Api/
+mv cp/DeploymentApiController.php /path/to/app/Http/Controllers/Api/
 ```
 
 Add route:
@@ -118,6 +118,10 @@ Add route:
 ```php
 Route::post('/v1/api/deploy', 'Api\DeploymentApiController@deploy');
 ```
+
+OR:
+
+Proceed to Implement your own endpoint that handles the overall pipeline for your deployment need.
 
 ## Usage
 
