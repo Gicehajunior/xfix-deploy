@@ -115,13 +115,17 @@ mv cp/DeploymentApiController.php /path/to/app/Http/Controllers/Api/
 
 Add route:
 
-```php
-Route::post('/v1/api/deploy', 'Api\DeploymentApiController@deploy');
+```php 
+use SelfPhp\Route; 
+use App\Http\Controllers\Api\DeploymentApiController; 
+use App\Http\Middlewares\ApiMiddleware;
+
+Route::post('/v1/app/deploy', [DeploymentApiController::class, 'deploy'], [ApiMiddleware::class]);
 ```
 
 OR:
 
-Proceed to Implement your own endpoint that handles the overall pipeline for your deployment need.
+Proceed to Implement your own endpoint that handles the overall pipeline for your deployment need & that compliments your techstack.
 
 ## Usage
 
