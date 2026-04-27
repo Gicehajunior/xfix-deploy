@@ -9,6 +9,9 @@ import fetch from 'node-fetch';
 import { fileURLToPath } from 'url'; 
 
 // PATH HELPERS (ESM SAFE)
+let total = null;
+let included = null;
+let excluded = null;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = process.cwd();
@@ -29,22 +32,28 @@ async function loadConfig() {
     username: config.username,
     password: process.env.DEPLOY_PASSWORD || config.password,
     remotePath: config.remotePath,
+    deployPath: config.deployPath,
     branch: config.branch || 'develop',
+    version: config.version || process.env.APP_VERSION || '',
     deployUrl: config.deployUrl + '/v1/app/deploy',
     secure: config.secure || false,
     rejectUnauthorized: config.rejectUnauthorized || false,
     maxRetries: config.maxRetries || 3,
     retryDelay: config.retryDelay || 2000,
+    allowBackup: config.allowBackup || false,
     cleanupLocal: config.cleanupLocal || false,
+    run_migrations: config.run_migrations || false,
+    clear_cache: config.clear_cache || false,
+    run_composer: config.run_composer || false,
     verbose: config.verbose || false,
     client_id: config.client_id || process.env.CLIENT_ID || process.env.XFIX_CLIENT_ID,
-    api_key: config.api_key || process.env.API_KEY || process.env.XFIX_API_KEY
+    api_key: config.api_key || process.env.API_KEY || process.env.XFIX_API_KEY,
   };
 }
 
 // CONFIGURATION VALIDATOR
 function validateConfig(config) {
-  const required = ['host', 'username', 'password', 'remotePath'];
+  const required = ['host', 'username', 'password', 'remotePath', 'deployPath'];
   const missing = required.filter(key => !config[key]);
   
   if (missing.length) {
@@ -212,7 +221,7 @@ async function uploadWithRetry(client, localPath, remotePath, config) {
       lastError = error;
       
       if (attempt < config.maxRetries) {
-        console.log(`  ⚠️  Upload attempt ${attempt} failed, retrying in ${config.retryDelay/1000}s...`);
+        console.log(`  🚫 Upload attempt ${attempt} failed, retrying in ${config.retryDelay/1000}s...`);
         await new Promise(resolve => setTimeout(resolve, config.retryDelay));
       }
     }
@@ -224,23 +233,26 @@ async function uploadWithRetry(client, localPath, remotePath, config) {
 // REMOTE EXTRACTION TRIGGER
 async function triggerRemoteExtraction(deployUrl, config) {
   if (!deployUrl) {
-    console.log('⚠️  No deployUrl configured, skipping remote extraction');
+    console.log('🚫  No deployUrl configured, skipping remote extraction');
     return;
   }
 
-  console.log('⚙️  Triggering remote extraction...');
+  console.log('🛠️  Triggering remote extraction...');
   
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
     
     const formData = new URLSearchParams();
-    formData.append('client_id', config.client_id);
-    formData.append('deployPath', config.remotePath);
-    formData.append('host', config.host);
-    formData.append('username', config.username);
-    formData.append('password', config.password);
-    formData.append('branch', config.branch);
+    Object.entries(config).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, value);
+        }
+      }
+    });
 
     const res = await fetch(deployUrl, {
       method: 'POST',
@@ -265,16 +277,17 @@ async function triggerRemoteExtraction(deployUrl, config) {
     
     if (responseData.success) {
       console.log('✅  Remote extraction triggered successfully');
-      console.log(`    Files deployed: ${responseData.data?.files_deployed || 'N/A'}`);
-      console.log(`    Version: ${responseData.data?.version || 'N/A'}`);
+      console.log(`    Files deployed: ${included || 'N/A'}`);
+      console.log(`    Version: ${config?.version || 'N/A'}`);
     } else {
       throw new Error(responseData.message || 'Unknown deployment error');
     }
     
   } catch (error) {
     if (error.name === 'AbortError') {
-      throw new Error('❌ Remote extraction request timed out after 30 seconds');
+      throw new Error('❌ Remote extraction request timed out after 5 minutes');
     }
+
     throw new Error(`❌ Remote extraction failed: ${error.message}`);
   }
 }
@@ -297,7 +310,7 @@ export default async function deploy(options = {}) {
   try {
     console.log('\n🚀 Starting XFIX deployment...\n');
     
-    // Validate configuration 
+    // Validate configuration
     validateConfig(config);
     
     if (options.verbose) {
@@ -312,8 +325,12 @@ export default async function deploy(options = {}) {
     const ig = loadIgnore();
     const allFiles = await getAllFiles();
     const { files: allowedFiles, stats } = filterFiles(allFiles, ig, config);
+
+    total = stats.total;
+    included = stats.included;
+    excluded = stats.excluded;
     
-    console.log(`   Found ${stats.total} files: ${stats.included} included, ${stats.excluded} excluded`);
+    console.log(`   Found ${total} files: ${included} included, ${excluded} excluded`);
     
     if (!allowedFiles.length) {
       throw new Error('❌ No files to deploy. Check your .updateignore configuration.');
@@ -325,7 +342,7 @@ export default async function deploy(options = {}) {
     await createArchive(zipPath, allowedFiles, config);
     
     // Upload to server
-    console.log('\n☁️  Connecting to server...');
+    console.log('\n🔗  Connecting to server...');
     const client = new ftp.Client();
     client.ftp.verbose = config.verbose;
     
@@ -365,7 +382,7 @@ export default async function deploy(options = {}) {
     await cleanup(zipPath, config);
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`\n✅ Deployment completed successfully in ${duration}s\n`);
+    console.log(`\n✅ Deployment staged successfully in ${duration}s\n`);
     
   } catch (error) {
     console.error(`\n❌ Deployment failed: ${error.message}\n`);
