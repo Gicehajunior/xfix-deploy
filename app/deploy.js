@@ -42,12 +42,12 @@ async function loadConfig() {
     retryDelay: config.retryDelay || 2000,
     allowBackup: config.allowBackup || false,
     cleanupLocal: config.cleanupLocal || false,
-    run_migrations: config.run_migrations || false,
-    clear_cache: config.clear_cache || false,
-    run_composer: config.run_composer || false,
+    runMigrations: config.runMigrations || false,
+    clearCache: config.clearCache || false,
+    runComposer: config.runComposer || false,
     verbose: config.verbose || false,
-    client_id: config.client_id || process.env.CLIENT_ID || process.env.XFIX_CLIENT_ID,
-    api_key: config.api_key || process.env.API_KEY || process.env.XFIX_API_KEY,
+    clientId: config.clientId || process.env.CLIENT_ID || process.env.XFIX_CLIENT_ID,
+    apiKey: config.apiKey || process.env.API_KEY || process.env.XFIX_API_KEY,
   };
 }
 
@@ -261,8 +261,8 @@ async function triggerDeploymentStaging(deployUrl, config) {
       headers: {
         'User-Agent': 'XFIX-Deploy/1.0',
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': config.api_key,
-        'XFIX-CLIENT-ID': config.client_id
+        'X-API-Key': config.apiKey,
+        'XFIX-CLIENT-ID': config.clientId
       }
     });
     
