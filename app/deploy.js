@@ -231,13 +231,13 @@ async function uploadWithRetry(client, localPath, remotePath, config) {
 }
 
 // REMOTE EXTRACTION TRIGGER
-async function triggerRemoteExtraction(deployUrl, config) {
+async function triggerDeploymentStaging(deployUrl, config) {
   if (!deployUrl) {
-    console.log('🚫  No deployUrl configured, skipping remote extraction');
+    console.log('🚫  No deployUrl configured, skipping remote deployment staging');
     return;
   }
 
-  console.log('🛠️  Triggering remote extraction...');
+  console.log('🛠️  Triggering remote deployment staging...');
   
   try {
     const controller = new AbortController();
@@ -276,7 +276,7 @@ async function triggerRemoteExtraction(deployUrl, config) {
     const responseData = await res.json();
     
     if (responseData.success) {
-      console.log('✅  Remote extraction triggered successfully');
+      console.log('✅  Remote deployment staging triggered successfully');
       console.log(`    Files deployed: ${included || 'N/A'}`);
       console.log(`    Version: ${config?.version || 'N/A'}`);
     } else {
@@ -285,10 +285,10 @@ async function triggerRemoteExtraction(deployUrl, config) {
     
   } catch (error) {
     if (error.name === 'AbortError') {
-      throw new Error('❌ Remote extraction request timed out after 5 minutes');
+      throw new Error('❌ Remote deployment staging request timed out after 5 minutes');
     }
 
-    throw new Error(`❌ Remote extraction failed: ${error.message}`);
+    throw new Error(`❌ Remote deployment staging failed: ${error.message}`);
   }
 }
 
@@ -374,9 +374,9 @@ export default async function deploy(options = {}) {
       console.log('✅  FTP connection closed');
     }
     
-    // Trigger remote extraction
+    // Trigger remote deployment staging
     console.log('');
-    await triggerRemoteExtraction(config.deployUrl, config);
+    await triggerDeploymentStaging(config.deployUrl, config);
     
     // Cleanup
     await cleanup(zipPath, config);
